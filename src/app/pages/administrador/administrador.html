@@ -171,27 +171,46 @@
           </button>
         </div>
 
+        <div class="puntos-filters-row">
+          <select 
+            class="form-select form-select-sm" 
+            [(ngModel)]="filtroTipoResiduo" 
+            (change)="filtrarPorTipoResiduo()">
+            <option value="">Filtrar por tipo de residuo</option>
+            <option *ngFor="let tipo of tiposResiduoDisponibles" [value]="tipo">
+              {{ tipo }}
+            </option>
+          </select>
+          <button 
+            *ngIf="filtroTipoResiduo" 
+            class="btn btn-outline-secondary btn-sm" 
+            type="button" 
+            (click)="limpiarFiltroResiduo()">
+            Limpiar
+          </button>
+        </div>
+
         <button class="btn btn-success" type="button" (click)="abrirModalRegistrarPunto()">
           Registrar punto
         </button>
       </div>
 
       <div class="puntos-admin-list mt-3">
-        <div class="punto-item" *ngFor="let punto of puntosFiltrados">
-          <h6>{{ punto.nombre }}</h6>
-          <p><strong>Dirección:</strong> {{ punto.direccion }}</p>
-          <p><strong>Horario:</strong> {{ punto.horario || 'No informado' }}</p>
-          <p><strong>Residuo:</strong> {{ $any(punto).tipo_residuo || $any(punto).tipoResiduo || 'General' }}</p>
-        </div>
-
-        <div class="alert alert-warning" *ngIf="!puntosFiltrados.length">
-          No hay puntos para mostrar en esta vista.
-        </div>
+        <app-tabla
+          [columnas]="columnasPuntos"
+          [data]="puntosFiltrados"
+          [cellTemplates]="puntosCellTemplates"
+          [mostrarAcciones]="true"
+          (editar)="editarPuntoDesdeTabla($event)"
+          (eliminar)="eliminarPuntoDesdeTabla($event)"
+          (ver)="verPuntoDesdeTabla($event)"
+          titulo="Puntos de reciclaje">
+        </app-tabla>
       </div>
 
       <app-modal
         [isOpen]="mostrarModalRegistrarPunto"
-        title="Registrar punto de reciclaje"
+        [title]="editandoPunto ? 'Editar punto de reciclaje' : 'Registrar punto de reciclaje'"
         size="lg"
         [headerColor]="'#198754'"
         (closed)="cerrarModalRegistrarPunto()">
@@ -240,7 +259,7 @@
         <div modal-footer class="d-flex justify-content-end gap-2 w-100">
           <button class="btn btn-outline-secondary" type="button" (click)="cerrarModalRegistrarPunto()">Cancelar</button>
           <button class="btn btn-success" type="button" [disabled]="guardandoPunto" (click)="registrarPunto()">
-            {{ guardandoPunto ? 'Guardando...' : 'Registrar punto' }}
+            {{ guardandoPunto ? (editandoPunto ? 'Actualizando...' : 'Guardando...') : (editandoPunto ? 'Actualizar punto' : 'Registrar punto') }}
           </button>
         </div>
       </app-modal>
